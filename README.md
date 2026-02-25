@@ -3,9 +3,6 @@
 An app for camera enthusiasts to catalog their cameras and equipment, share 
 photos and connect with fellow shutter bugs.
 
-NOTE: this app is built in conjunction with copilot in vscode as an tool 
-learning exercise
-
 ## Tech Stack
 - PostgreSQL
 - Python/Flask (backend routing)
@@ -14,7 +11,7 @@ learning exercise
 
 ## Planned Features
 - User Authorization - Under Construction
-- Home Page (index of user posts) - Under Construction
+- Home Page (index of user posts)
 - Camera Cabinet (index of a user's colleciton of camera/equipent items) 
     - Cabinet item page
 - Profile page (index of user's posts and details)

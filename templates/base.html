@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ShutterBug</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">Home</a> | 
+            {% if session.get('user') %}
+                <span>Welcome, {{ session['user'] }}!</span> |
+                <a href="/logout">Logout</a>
+            {% else %}
+                <a href="/login">Login</a> | 
+                <a href="/signup">Sign Up</a>
+            {% endif %}
+        </nav>
+    </header>
+    <hr>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div style="padding: 10px; margin: 10px 0;
+                        color: {{'red' if category == 'error' else 'green'}};
+                        border: 1px solid {{'red' if category == 'error' else 'green'}};">
+                {{message}}
+            </div>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+
+</body>
+</html>
+

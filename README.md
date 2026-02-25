@@ -12,9 +12,9 @@ learning exercise
 - JavaScript/React (frontend routing and UI)
 - HTML/CSS (display and style)
 
-## Features
-- User Authorization
-- Home Page (index of user posts)
+## Planned Features
+- User Authorization - Under Construction
+- Home Page (index of user posts) - Under Construction
 - Camera Cabinet (index of a user's colleciton of camera/equipent items) 
     - Cabinet item page
 - Profile page (index of user's posts and details)
@@ -23,3 +23,5 @@ learning exercise
 - Friends (users can be friends with other users)
 - Wishlist (users can create a list of items they are looking for)
 - Comments (users can comment on posts, and wishlist itemds)
+
+

@@ -3,12 +3,17 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+
+# >>> APP/ENV SETUP <<<
 
 load_dotenv()
 
 app = Flask(__name__)
 # This can be any random string for now
 app.secret_key = os.getenv("SECRET_KEY")
+
+# >>> DB SETUP and MODELS <<
 
 # db connection
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
@@ -27,6 +32,36 @@ class User(db.Model):
     def __repr__(self):
         return f"<User {self.username}>"
 
+# >>> ROUTE PROTECTION <<< 
+
+def required_logged_in(f):
+    @wraps(f)
+    def deco_func(*args, **kwargs):
+        # Check if the 'user' key exits in session
+        if "user" not in session:
+            flash("You must be logged in to access that page.", "error")
+            return redirect(url_for("login"))
+
+        # Otherwise user must be logged in, grant access
+        return f(*args, **kwargs)
+
+    return deco_func
+
+def required_logged_out(f):
+    @wraps(f)
+    def deco_func(*args, **kwargs):
+        # check if the 'user' key exists in session
+        if "user" in session:
+            flash("You must be logged out to access that page.", "error")
+            return(redirect(url_for("home")))
+        
+        # otherwise user must be logged out, grant access (signup/login only)
+        return f(*args, **kwargs)
+    
+    return deco_func
+
+# >>> ROUTES <<<
+
 @app.route("/")
 def home():
     # check if "user" key exists in the session
@@ -34,6 +69,7 @@ def home():
     return render_template("index.html", logged_in="user" in session)
 
 @app.route("/login", methods=["GET", "POST"])
+@required_logged_out
 def login():
     if request.method == "POST":
         username = request.form.get("username")
@@ -54,6 +90,7 @@ def login():
     return render_template("login.html")
 
 @app.route("/signup", methods=["GET", "POST"])
+@required_logged_out
 def signup():
     if request.method == "POST":
         username = request.form.get("username")
@@ -88,7 +125,8 @@ def signup():
         
     return render_template("signup.html")
 
-@app.route("/logout")
+@app.route("/logout", methods=["POST"])
+@required_logged_in
 def logout():
     # remove user form session
     session.pop("user", None)

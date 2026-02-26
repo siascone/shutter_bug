@@ -25,13 +25,8 @@ photos and connect with fellow shutter bugs.
 - set up a virtual env `python -m venv venv`
 - give execute permission to venv acticate executable `chmod +x venv/bin/activate`
 - start virtual env `. .venv/bin/activate`
-- install requirements: (NOTE TO SELF: I need to make a requirements.txt file to run pip installs automatically)
-  - install flask `pip install flask`
-  - install sqlalchemy `pip install flask-sqlalchemy`
-  - install python-postgres driver `pip install psycopg2-binary`
-  - install dotenv `pip install python-dotenv`
-  - install werkzeug `pip install werkzeug`
-- setup flask `. ./setup.snh`
+- install requirements: `pip install -r requirements.txt`
+- setup flask environment `. ./setup.snh`
 - create `.env` file
   - add a DATABASE_URL="postgresql://my_app_user:secure_password@localhost:5432/my_flask_app
   - add a SECRET_KEY=<large_alnum_string>

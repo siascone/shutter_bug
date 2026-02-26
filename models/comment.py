@@ -1,8 +1,8 @@
 from . import db
 from datetime import datetime
 
-class Post(db.Model):
-    __tablename__ = 'posts'
+class Comment(db.Model):
+    __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -11,8 +11,9 @@ class Post(db.Model):
     # Foreign key to users table
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
-    comments = db.relationship('Comment', backref='original_post', lazy=True) 
+    # Foreign key to posts table
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
     
 
-    def __repr__(self):
-        return f'<Post {self.id} by {self.user_id}'
+def __repr__(self):
+    return f'<Comment {self.id} on post {self.post_id} by {self.user_id}'

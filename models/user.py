@@ -13,5 +13,8 @@ class User(db.Model):
     # joins posts and users table on user_id
     posts = db.relationship('Post', backref='author', lazy=True) # must use model name not table name
     
+    comments = db.relationship('Comment', backref='commenter', lazy=True) 
+    
+    
     def __repr__(self):
         return f"<User {self.username}>"

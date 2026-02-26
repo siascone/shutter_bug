@@ -1,6 +1,6 @@
 from app import app
 from dotenv import load_dotenv
-from models import db, User, Post
+from models import db, User, Post, Comment
 from werkzeug.security import generate_password_hash
 
 load_dotenv()
@@ -40,7 +40,7 @@ def seed_database():
                 
             users[user["username"]] = new_user
                 
-        posts = [
+        posts_seeds = [
             {
                 "author": users["shutterbug1"],
                 "body": "Golden hour at the pier today! The dynamic range on modern sensors is just cheating at this point. I recovered so much detail from the shadows."
@@ -62,14 +62,61 @@ def seed_database():
                 "body": "Unpopular opinion: Film is actually cheaper than digital if you consider that I don't feel the need to buy a new $3,000 body every two years."
             }
         ]
-        
-        for post in posts:
+
+        posts = []
+        for post in posts_seeds:
             if not Post.query.filter_by(body=post["body"]).first():
                 new_post = Post(body=post["body"], author=post["author"])
                 db.session.add(new_post)
-                
+                posts.append(new_post)
+
+        db.session.commit()
+        
+        comment_seeds = [
+            # Comments on Shutterbug1's Golden Hour post (posts[0])
+            {
+                "commenter": users["nikon4life"],
+                "original_post": posts[0],
+                "body": "Modern sensors really are magic. My Z9 can practically see in the dark!"
+            },
+            # Comments on nikon4life's Noct post (posts[1])
+            {
+                "commenter": users["shutterbug1"],
+                "original_post": posts[1],
+                "body": "f/0.95 is wild. Do you even have a focus plane at that point, or is it just a focus 'molecule'?"
+            },
+            {
+                "commenter": users["canonloverAE1"],
+                "original_post": posts[1],
+                "body": "It's a beautiful lens, but I'll stick to my manual FD glass. Much more character."
+            },
+            # Comments on canonloverAE1's AE-1 post (posts[2])
+            {
+                "commenter": users["shutterbug1"],
+                "original_post": posts[2],
+                "body": "The AE-1 is a classic! There’s nothing like the smell of a fresh roll of Portra 400."
+            },
+            # Comments on canonloverAE1's "Film is cheaper" post (posts[4])
+            {
+                "commenter": users["nikon4life"],
+                "original_post": posts[4],
+                "body": "Until you factor in the cost of scanning and the stress of airport X-ray machines! 😂"
+            },
+            {
+                "commenter": users["canonloverAE1"],
+                "original_post": posts[4],
+                "body": "That's why I develop at home! Darkroom life is the best life."
+            }
+        ]
+        
+        for comment in comment_seeds:
+            new_comment = Comment(body=comment['body'], commenter=comment["commenter"], original_post=comment["original_post"])
+            db.session.add(new_comment)
+        
         db.session.commit()
         print("Database seeded successfully!")
+        
+        
         
 if __name__ == "__main__":
     seed_database()

@@ -31,6 +31,15 @@
     <hr>
 
     <h3>Comments</h3>
-    <p><em>Comments comming soon...</em></p>
+    
+    {% if post.comments %}
+        {% for comment in post.comments %}
+            <div style="margin-bottom: 15px; border-bottom: 1px solid #eee">
+                <p><strong>{{ comment.commenter.username }}</strong>: {{ comment.body }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Be the first to comment on this post.</p>
+    {% endif %}
 
 {% endblock %}

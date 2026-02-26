@@ -1,55 +1,22 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
-from datetime import datetime
+from models import db, User, Post
 
-# >>> APP/ENV SETUP <<<
+# >>> APP/ENV/DB SETUP <<<
 
 load_dotenv()
 
 app = Flask(__name__)
-# This can be any random string for now
 app.secret_key = os.getenv("SECRET_KEY")
-
-# >>> DB SETUP and MODELS <<< (figure out how to decouple from app.py)
 
 # db connection
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db = SQLAlchemy(app)
-
-# User Model
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_digest = db.Column(db.String(255), nullable=False) # this gets hashed before db storage
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # joins posts and users table on user_id
-    posts = db.relationship('Post', backref='author', lazy=True) # must use model name not table name
-    
-    def __repr__(self):
-        return f"<User {self.username}>"
-    
-class Post(db.Model):
-    __tablename__ = 'posts'
-    id = db.Column(db.Integer, primary_key=True)
-    body = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Foreign key to user table
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-
-    def __repr__(self):
-        return f'<Post {self.id} by {self.user_id}'
+db.init_app(app)
 
 # >>> ROUTE PROTECTION <<< (figure out how to decouple from app.py)
 

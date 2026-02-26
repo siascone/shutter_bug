@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from datetime import datetime
 
 # >>> APP/ENV SETUP <<<
 
@@ -13,7 +14,7 @@ app = Flask(__name__)
 # This can be any random string for now
 app.secret_key = os.getenv("SECRET_KEY")
 
-# >>> DB SETUP and MODELS <<
+# >>> DB SETUP and MODELS <<< (figure out how to decouple from app.py)
 
 # db connection
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
@@ -28,11 +29,29 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_digest = db.Column(db.String(255), nullable=False) # this gets hashed before db storage
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # joins posts and users table on user_id
+    posts = db.relationship('Post', backref='author', lazy=True) # must use model name not table name
     
     def __repr__(self):
         return f"<User {self.username}>"
+    
+class Post(db.Model):
+    __tablename__ = 'posts'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Foreign key to user table
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-# >>> ROUTE PROTECTION <<< 
+    def __repr__(self):
+        return f'<Post {self.id} by {self.user_id}'
+
+# >>> ROUTE PROTECTION <<< (figure out how to decouple from app.py)
 
 def required_logged_in(f):
     @wraps(f)
@@ -60,7 +79,7 @@ def required_logged_out(f):
     
     return deco_func
 
-# >>> ROUTES <<<
+# >>> ROUTES <<< (figure out how to decouple from app.py)
 
 @app.route("/")
 def home():
@@ -132,6 +151,65 @@ def logout():
     session.pop("user", None)
     flash("You have been logged out.")
     return redirect(url_for("home"))
+
+@app.route("/posts")
+def post_index():
+    # get all posts from db ordered by mostrecent created date
+    all_posts = Post.query.order_by(Post.created_at.desc()).all()
+    return render_template("post_index.html", posts=all_posts)
+
+@app.route("/posts/new", methods=["GET", "POST"])
+@required_logged_in
+def create_post():
+    if request.method == "POST":
+        body = request.form.get("body")
+        
+        current_user = User.query.filter_by(username=session['user']).first()
+        
+        new_post = Post(body=body, author=current_user)
+        db.session.add(new_post)
+        db.session.commit()
+        
+        flash("Post created!", "success")
+        return redirect(url_for("post_view", post_id=new_post.id))
+    
+    return render_template("create_post.html")
+
+@app.route("/posts/<int:post_id>")
+def post_view(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template("post_view.html", post=post)
+
+@app.route("/posts/<int:post_id>/edit", methods=["GET", "POST"])
+@required_logged_in
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    
+    if post.author.username != session['user']:
+        flash("You cannot edit someone else's post!", "error")
+        return redirect(url_for('post_view', post_id=post_id))
+    
+    if request.method == "POST":
+        post.body = request.form.get("body")
+        db.session.commit()
+        flash("Post updated!", "success")
+        return redirect(url_for('post_view', post_id=post.id))
+    
+    return render_template("edit_post.html", post=post)
+
+@app.route("/posts/<int:post_id>/delete", methods=["POST"])
+@required_logged_in
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    
+    if post.author.username != session['user']:
+        flash("You cannot delete someone else's post!", "error")
+        return redirect('post_view', post_id=post_id)
+    
+    db.session.delete(post)
+    db.session.commit()
+    flash("Post deleted.", "success")
+    return redirect(url_for("post_index"))
 
 
 

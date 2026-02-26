@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h2>All Posts</h2>
+
+    {% if session.get('user') %} 
+        <a href="{{ url_for("create_post") }}">Create a New Post</a>
+        <hr>
+    {% endif %}
+    
+    {% for post in posts %}
+        <div>
+            <p>{{ post.body }}</p>
+            <small>
+                Posted by <strong>{{ post.author.username }}</strong> on {{ post.created_at.strftime('%Y=%m-%d')}}
+            </small>
+            <br>
+            <a href="{{ url_for('post_view', post_id=post.id) }}">View Post and Comments</a>
+        </div>
+    {% else %}
+        <p>No posts yet! You could be the first to post!!!</p>
+    {% endfor%}
+
+{% endblock%}

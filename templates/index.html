@@ -1,5 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Welcome to the site</h1>
-    <p>To see what others are up to checkout the <a href="{{ url_for('posts.post_index')}}">Posts Index</a> page.</p>
+    <h1>Welcome to ShutterBug</h1>
+    <p>A social connection for camera and photography nuts alike!</p> 
+    <p>
+        Feel free to checkout what the community is up to over on the 
+        <strong><a href="{{ url_for('posts.post_index')}}">News Feed</a></strong>.
+    </p>
+    <p>
+        After you've had a chance to check us out please join the conversation by 
+        <strong><a href="{{ url_for('auth.signup')}}">signing up!</a></strong>
+    </p>
+
+    <p style="max-width: 600px">
+        All <strong>ShutterBugs</strong> are welcome, so whether you've just
+        picked up your first camera or you've been shooting for years please 
+        participate. We love to hear from everyone at every level. We believe that
+        the best camera is the one you have and use and the best photos are those
+        that bring you joy!
+    </p>
+
+    <p>We only have one rule: <strong><i>"Be execelent to each other and party on dudes!"</i></strong>
+
 {% endblock %}

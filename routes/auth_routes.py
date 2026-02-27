@@ -19,7 +19,7 @@ def login():
         if user and check_password_hash(user.password_digest, password):
             session["user"] = user.username
             flash(f"Welcome back, {username}!")
-            return redirect(url_for("main.home"))
+            return redirect(url_for("posts.post_index"))
         else:
             flash(f"Invalid username or password", "error")
             return redirect(url_for("login"))

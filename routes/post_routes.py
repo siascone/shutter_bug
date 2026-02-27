@@ -56,7 +56,7 @@ def delete_post(post_id):
     
     if post.author.username != session['user']:
         flash("You cannot delete someone else's post!", "error")
-        return redirect('post_view', post_id=post_id)
+        return redirect('posts.post_view', post_id=post_id)
     
     db.session.delete(post)
     db.session.commit()

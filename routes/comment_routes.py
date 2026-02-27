@@ -22,6 +22,22 @@ def create_comment():
         flash("Uh Oh! Looks like something went wrong. Please try again.", "error")
         
     return redirect(url_for("posts.post_view", post_id=post_id))
+
+@comments_bp.route("/comments/<int:comment_id>/delete", methods=["POST"])
+@required_logged_in
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
     
+    print(comment.commenter.username)
+    print(session['user'])
+    
+    if comment.commenter.username != session['user']:
+        flash("You cannot delete someone else's comment!", "error")
+        return redirect(url_for('posts.post_view', post_id=comment.post_id))
+    
+    db.session.delete(comment)
+    db.session.commit()
+    flash("Comment deleted.", "success")
+    return redirect(url_for('posts.post_view', post_id=comment.post_id))
     
     
